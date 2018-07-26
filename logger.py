@@ -16,10 +16,11 @@ import pickle
 try:
     import argparse
     flags  = argparse.ArgumentParser(parents=[tools.argparser])
-    flags.add_argument('-d','--date',required=False)
+    flags.add_argument('-d','--date',required=False,help='Start date for report in YYY-MM-DDTHH:MM:SS.MZ format.  Use the word epoch for all available logs')
     flags.add_argument('-s','--save',help='Save last date received into file')
     flags.add_argument('-l','--load',help='Load start date from file')
-    flags.add_argument('-v','--verbose',action='count',required=False)
+    flags.add_argument('-v','--verbose',action='count',required=False,help='Raise logging level')
+    flags.add_argument('-a','--appname',required=False,default='login',help='Appname for API')
     args = flags.parse_args()
 except ImportError:
     flags = None
@@ -57,7 +58,7 @@ def main():
     now = datetime.now()
     
 # Define the parameters we'll use for the API call.
-    params = {'applicationName': 'login', 'userKey': 'all', 'startTime': start_time}
+    params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
     
 # Start an infinite loop to pull data.
     while True:
@@ -90,7 +91,6 @@ def main():
     for activity in all_logins:
       for event in activity['events']:
         activity.get('ipAddress', None)
-#        logger.log("time={time},user={user},src_ip={src_ip},action={action},app={app},login_type={login_type}".format(time=activity[u'id'][u'time'], user=activity[u'actor'][u'email'], src_ip=activity[u'ipAddress'], action=event[u'name'], app=activity[u'id'][u'applicationName'],login_type=event[u'parameters'][0][u'value']), 'INFO', False)
         print(json.dumps(activity))
         last_time = activity[u'id'][u'time']
 
