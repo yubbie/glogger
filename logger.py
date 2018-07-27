@@ -56,7 +56,8 @@ def main():
     all_logins = []
     page_token = None
     now = datetime.now()
-    
+    last_time = '1970-01-01T00:00:00.0Z' 
+
 # Define the parameters we'll use for the API call.
     params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
     
@@ -71,11 +72,13 @@ def main():
     # Grab the current page of logins
         current_page = reports_service.activities().list(**params).execute()
         
+        all_logins=current_page['items']
+
     # Try adding the current page's login items to the 'all_logins' list.
-        try:
-          all_logins.extend(current_page['items'])
-        except:
-          pass
+#        try:
+#          all_logins.extend(current_page['items'])
+#        except:
+#          pass
     
     # Set the page token if one is available, if not, break the master loop.
         page_token = current_page.get('nextPageToken')
@@ -88,11 +91,12 @@ def main():
         break
     
 # Sometimes there's no source IP associated with the login.
-    for activity in all_logins:
-      for event in activity['events']:
-        activity.get('ipAddress', None)
-        print(json.dumps(activity))
-        last_time = activity[u'id'][u'time']
+      for activity in all_logins:
+        for event in activity['events']:
+          activity.get('ipAddress', None)
+          print(json.dumps(activity))
+  	if last_time < activity[u'id'][u'time']:
+             last_time = activity[u'id'][u'time']
 
     if args.save:
         pickle.dump( last_time, open( args.save, "wb" ) )
