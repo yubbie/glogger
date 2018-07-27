@@ -1,3 +1,5 @@
+#!/bin/python
+
 from __future__ import print_function
 from apiclient.discovery import build
 import apiclient
@@ -27,6 +29,11 @@ except ImportError:
 
 APPLICATION_NAME = 'VT audit log reader for elk'
 
+def debug(text,level,trigger):
+    
+    if level >= trigger:
+       print('[DEBUG] ' + text)
+
 
 def main():
 
@@ -48,15 +55,19 @@ def main():
 	   start_time = args.date
     else:
         start_time = (datetime.utcnow() - timedelta(hours=1)).isoformat('T') + 'Z'
+	debug('default starttime ' + start_time,args.verbose,1)
 
     if args.load:
         start_time = pickle.load( open( args.load, "rb" ) )	
+        debug('loaded start time ' + start_time,args.verbose,1)
+
+    debug('Final time select is ' + start_time,args.verbose,1)
 
 # Declare a couple variables we'll need later.
     all_logins = []
     page_token = None
     now = datetime.now()
-    last_time = '1970-01-01T00:00:00.0Z' 
+    last_time = start_time
 
 # Define the parameters we'll use for the API call.
     params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
@@ -100,7 +111,7 @@ def main():
 
     if args.save:
         pickle.dump( last_time, open( args.save, "wb" ) )
-
+        debug('saving time ' + last_time,args.verbose,1);
 
 if __name__ == '__main__':
     main()
