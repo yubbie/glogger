@@ -55,13 +55,16 @@ def main():
 	   start_time = args.date
     else:
         start_time = (datetime.utcnow() - timedelta(hours=1)).isoformat('T') + 'Z'
-	debug('default starttime ' + start_time,args.verbose,1)
+	debug('default starttime ' + start_time,args.verbose,2)
 
     if args.load:
-        start_time = pickle.load( open( args.load, "rb" ) )	
-        debug('loaded start time ' + start_time,args.verbose,1)
+        try:
+          start_time = pickle.load( open( args.load, "rb" ) )	
+          debug('loaded start time ' + start_time,args.verbose,2)
+        except:
+          debug('failed to load pickle ' + args.load,args.verbose,1)
 
-    debug('Final time select is ' + start_time,args.verbose,1)
+    debug('Final time select is ' + start_time,args.verbose,2)
 
 # Declare a couple variables we'll need later.
     all_logins = []
@@ -111,7 +114,7 @@ def main():
 
     if args.save:
         pickle.dump( last_time, open( args.save, "wb" ) )
-        debug('saving time ' + last_time,args.verbose,1);
+        debug('saving time ' + last_time,args.verbose,2);
 
 if __name__ == '__main__':
     main()
