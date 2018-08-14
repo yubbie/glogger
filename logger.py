@@ -23,6 +23,7 @@ try:
     flags.add_argument('-l','--load',help='Load start date from file')
     flags.add_argument('-v','--verbose',action='count',required=False,help='Raise logging level')
     flags.add_argument('-a','--appname',required=False,default='login',help='Appname for API')
+    flags.add_argument('-e','--eventname',required=False,help='Optional Event type for query')
     args = flags.parse_args()
 except ImportError:
     flags = None
@@ -73,7 +74,10 @@ def main():
     last_time = start_time
 
 # Define the parameters we'll use for the API call.
-    params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
+    if args.eventname:
+       params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time, 'eventName': args.eventname}
+    else:
+       params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
     
 # Start an infinite loop to pull data.
     while True:
