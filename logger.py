@@ -24,11 +24,11 @@ try:
     flags.add_argument('-v','--verbose',action='count',required=False,help='Raise logging level')
     flags.add_argument('-a','--appname',required=False,default='login',help='Appname for API')
     flags.add_argument('-e','--eventname',required=False,help='Optional Event type for query')
+    flags.add_argument('-f','--filter',required=False,help='Optional filter for query')
+    flags.add_argument('-m','--maxresults',required=False,help='Optional maxResults setting')
     args = flags.parse_args()
 except ImportError:
     flags = None
-
-APPLICATION_NAME = 'VT audit log reader for elk'
 
 def debug(text,level,trigger):
     
@@ -45,8 +45,6 @@ def main():
         flow = client.flow_from_clientsecrets('client_secrets.json', SCOPES)
         creds = tools.run_flow(flow, store, args)
     reports_service = build('admin', 'reports_v1', http=creds.authorize(Http()))
-
-#Code goes here.
 
 # Create a start time of one hour to use to limit results.
     if args.date:
@@ -74,11 +72,17 @@ def main():
     last_time = start_time
 
 # Define the parameters we'll use for the API call.
+    params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
+
     if args.eventname:
-       params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time, 'eventName': args.eventname}
-    else:
-       params = {'applicationName': args.appname, 'userKey': 'all', 'startTime': start_time}
+       params[u'eventName'] = args.eventname 
     
+    if args.filter:
+       params[u'filters'] = args.filter
+
+    if args.maxresults:
+       params[u'maxResults'] = args.maxresults
+
 # Start an infinite loop to pull data.
     while True:
       try:
@@ -87,9 +91,11 @@ def main():
         if page_token:
           params['pageToken'] = page_token
     
-    # Grab the current page of logins
+    # Grab the current page of data
         current_page = reports_service.activities().list(**params).execute()
-        
+	if args.verbose >= 3:
+	  print(json.dumps(current_page)) 
+	
         all_logins=current_page['items']
 
     # Try adding the current page's login items to the 'all_logins' list.
@@ -98,23 +104,25 @@ def main():
 #        except:
 #          pass
     
+    
+    
+# Sometimes there's no source IP associated with the login.
+        for activity in all_logins:
+          for event in activity['events']:
+            activity.get('ipAddress', None)
+            print(json.dumps(activity))
+  	  if last_time < activity[u'id'][u'time']:
+             last_time = activity[u'id'][u'time']
+
     # Set the page token if one is available, if not, break the master loop.
         page_token = current_page.get('nextPageToken')
         if not page_token:
           break
-    
+
   # Print out any errors that surface from the attempt to grab data.     
       except errors.HttpError as error:
         print("message='{err}'".format(err=error), 'ERR')
         break
-    
-# Sometimes there's no source IP associated with the login.
-      for activity in all_logins:
-        for event in activity['events']:
-          activity.get('ipAddress', None)
-          print(json.dumps(activity))
-  	if last_time < activity[u'id'][u'time']:
-             last_time = activity[u'id'][u'time']
 
     if args.save:
         pickle.dump( last_time, open( args.save, "wb" ) )
