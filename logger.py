@@ -33,7 +33,7 @@ except ImportError:
 def debug(text,level,trigger):
     
     if level >= trigger:
-       print('[DEBUG] ' + text)
+       print('[DEBUG] ' + text,file=sys.stderr)
 
 
 def main():
@@ -93,8 +93,7 @@ def main():
     
     # Grab the current page of data
         current_page = reports_service.activities().list(**params).execute()
-	if args.verbose >= 3:
-	  print(json.dumps(current_page)) 
+	debug(json.dumps(current_page),args.verbose,3) 
 	
         all_logins=current_page['items']
 
