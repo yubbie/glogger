@@ -37,6 +37,12 @@ optional arguments:
                         Optional maxResults setting
 ```
 
+## Installation
+
+Note those first few arguments are from google oauth library.  Make a file called `token.json` in the working directory.  Run it with `--noauth_local_webserver` if you're not someone a browser can fork, and follow the oauth dialog.  If you've installed GAM or another similar tool, you've seen this before.  You'll need an api project that enables at least admin.reports.audit.readonly
+
+Anyone who wants to contribute a step by step set of instructions would be great - otherwise I'd go read GAM "do it yourself" instructions.
+
 ## Examples:
 
 `glogger.py`
