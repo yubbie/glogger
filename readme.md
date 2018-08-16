@@ -1,11 +1,10 @@
-
-glogger
+# glogger
 
 Processes the google activity logs via the activity api and pulls down the
 json data for crunching by something else.  Great for shoving into 
 filebeats for transfer to elk, for instance.
 
-
+```
 usage: glogger.py [-h] [--auth_host_name AUTH_HOST_NAME]
                   [--noauth_local_webserver]
                   [--auth_host_port [AUTH_HOST_PORT [AUTH_HOST_PORT ...]]]
@@ -36,3 +35,4 @@ optional arguments:
                         Optional filter for query
   -m MAXRESULTS, --maxresults MAXRESULTS
                         Optional maxResults setting
+```
