@@ -36,3 +36,17 @@ optional arguments:
   -m MAXRESULTS, --maxresults MAXRESULTS
                         Optional maxResults setting
 ```
+
+## Examples:
+
+`glogger.py`
+
+Dump the last hour of data available from the login activities log.
+
+`glogger.py -a drive -d epoch -s timestamp.s -f "doc_type==team_drive"`
+
+Show all events back to the earliest recorded for the drive activity log where the target was a team drive, and save the timestamp of the last event for future use as a starting point.
+
+`glogger.py -a drive -l timestamp.s -s timestamp.s -e ACCESS -f "doc_id==1f99834400349asdf"`
+
+Show drive activity events since the timestamp stored in timestamp.s, where the event type was ACCESS and the document id of the item was 1f99834400349asdf.  Save the last time stamp back into timestamp.s for future use.
